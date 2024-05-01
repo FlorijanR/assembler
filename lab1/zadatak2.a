@@ -1,0 +1,70 @@
+GLAVNI
+    MOVE 10000, SP
+    MOVE PODATCI, R2
+    MOVE 1000, R3
+    LOAD R5, (KONSTANTA)
+
+LOOPG
+    LOAD R1, (R2)
+
+    CMP R1, R5
+    JP_EQ KRAJ
+
+    ASHR R1, 10, R1
+    PUSH R1
+    LOAD R1, (R2)
+    SHL R1, 10, R1
+    ASHR R1, 10, R1
+    PUSH R1
+
+    CALL COMP
+    ADD SP, 8, SP
+    STORE R0, (R3)
+
+    ADD R3, 4, R3
+    ADD R2, 4, R2
+    JP LOOPG
+
+KRAJ
+    HALT
+PODATCI    DH     4321, 432C, 0FF, 7DBA, 548B, 0B78B, 0BADA, 0DEDA, 7C8A, 1B39, 8000, 8000
+KONSTANTA  DW     80008000
+
+COMP
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    PUSH R6
+    MOVE 0, R0
+    ADD R3, 4, R3
+    ADD R4, 0FF, R4
+    ROTR R4, 8, R4
+    LOAD R5, (SP+1C)
+    LOAD R6, (SP+20)
+
+LOOP
+    AND R5, R4, R1
+    AND R6, R4, R2
+    CMP R1, R2
+    JP_EQ JENDAKI
+    OR R0, 0BB, R0
+POVRATAK
+    ROTL R0, 8, R0
+    SHR R4, 8, R4
+    SUB R3, 1, R3
+    JP_NZ LOOP
+
+    ROTR R0, 8, R0
+    POP R6
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    RET
+
+JENDAKI
+    OR R0, 0AA, R0
+    JP POVRATAK

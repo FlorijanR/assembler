@@ -1,0 +1,80 @@
+GLAVNI
+    MOV R13, #10<12
+    MOV R1, #1<8  ; 100
+    MOV R3, #1<10 ; 400
+    MOV R6, #2
+PETLJA
+    LDR R2, [R1], #4
+    CMP R2, #2<30 ; 8000 0000
+    BEQ KRAJ
+
+    STMFD R13!, {R2}
+    BL KUB
+    ADD R13, R13, #4
+
+    SUB R4, R0, #1
+    MUL R5, R2, R6
+
+    STMFD R13!, {R4, R5}
+    BL DIV
+    ADD R13, R13, #8
+
+    STR R0, [R3], #4
+    B PETLJA
+KRAJ
+    HALT
+
+
+KUB
+    STMFD R13!, {R1}
+    ADD R0, R13, #4
+    LDMFD R0, {R1}
+
+    MUL R0, R1, R1
+    MUL R0, R0, R1
+
+    LDMFD R13!, {R1}
+    MOV PC, LR
+
+
+DIV
+    STMFD R13!, {R1, R2, R3, R4, R5}
+    ADD R0, R13, #14
+    LDMFD R0, {R1, R2}
+
+    CMP R2, #0
+    MOVEQ R0, #0
+    BEQ KRAJP
+
+    MVN R5, #0
+    MOV R4, #0
+    MOV R3, #0
+    CMP R1, #0
+    EORLT R1, R1, R5
+    ADDLT R1, R1, #1
+    EORLT R3, R3, R5
+
+    CMP R2, #0
+    EORLT R2, R2, R5
+    ADDLT R2, R2, #1
+    EORLT R3, R3, R5
+
+DIJELJENJE
+    CMP R1, R2
+    BLO DALJE
+    ADD R4, R4, #1
+    SUB R1, R1, R2
+    B DIJELJENJE
+
+DALJE
+    MOV R0, R4
+    CMP R3, #0
+    EORNE R4, R4, R5
+    ADDNE R0, R4, #1
+KRAJP
+    LDMFD R13!, {R1, R2, R3, R4, R5}
+    MOV PC, LR
+
+
+    ORG 100
+    DW 0, 3, 6, -1, -6, 80000000
